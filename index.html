@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#090b18" />
+  <meta name="description" content="Обратный отсчёт до 23 июля 2026 года" />
+  <title>До 23 июля осталось</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="background" aria-hidden="true">
+    <div class="orb orb-one"></div>
+    <div class="orb orb-two"></div>
+    <div class="orb orb-three"></div>
+    <div class="stars"></div>
+  </div>
+
+  <main class="page">
+    <section class="countdown-card" aria-labelledby="page-title">
+      <div class="eyebrow">
+        <span class="status-dot"></span>
+        Обратный отсчёт
+      </div>
+
+      <h1 id="page-title">До 23 июля осталось</h1>
+      <p class="subtitle">
+        Отсчёт завершится 23 июля 2026 года в 00:00 по времени Бишкека
+      </p>
+
+      <div class="countdown" id="countdown" aria-live="polite">
+        <div class="time-box">
+          <span class="time-value" id="days">00</span>
+          <span class="time-label">дней</span>
+        </div>
+
+        <div class="separator">:</div>
+
+        <div class="time-box">
+          <span class="time-value" id="hours">00</span>
+          <span class="time-label">часов</span>
+        </div>
+
+        <div class="separator">:</div>
+
+        <div class="time-box">
+          <span class="time-value" id="minutes">00</span>
+          <span class="time-label">минут</span>
+        </div>
+
+        <div class="separator">:</div>
+
+        <div class="time-box">
+          <span class="time-value" id="seconds">00</span>
+          <span class="time-label">секунд</span>
+        </div>
+      </div>
+
+      <div class="finish-message" id="finishMessage" hidden>
+        <div class="finish-icon">✦</div>
+        <h2>Время пришло!</h2>
+        <p>23 июля уже наступило.</p>
+      </div>
+
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-track">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="progress-meta">
+          <span>16 июля</span>
+          <span>23 июля</span>
+        </div>
+      </div>
+
+      <p class="footer-note">Каждая секунда приближает к цели</p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
