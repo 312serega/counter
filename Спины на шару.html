@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Спины на шару</title>
+<style>
+:root{--bg:#f3efe6;--card:#fffdf8;--ink:#1d2a2a;--mute:#6b7773;--acc:#1f7a6d;--win:#1f7a6d;--lose:#b5402f;--line:#ddd6c6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14201f;--card:#1c2b2a;--ink:#eef2ee;--mute:#93a39e;--acc:#4cc3ae;--win:#4cc3ae;--lose:#ef7f6c;--line:#2f4442}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS",Verdana,sans-serif;display:flex;justify-content:center;min-height:100vh}
+main{width:100%;max-width:440px;padding:20px 16px 40px}
+h1{font-size:1.5rem;margin:0 0 4px}
+p.sub{margin:0 0 18px;color:var(--mute);font-size:.9rem}
+.bal{display:flex;justify-content:space-between;align-items:baseline;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:14px}
+.bal b{font-size:1.8rem;font-variant-numeric:tabular-nums}
+.reels{display:flex;gap:10px;background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:14px;margin-bottom:12px}
+.reel{flex:1;aspect-ratio:1;display:grid;place-items:center;font-size:3.2rem;background:var(--bg);border-radius:12px;border:1px solid var(--line)}
+.reel.spin{animation:s .12s linear infinite}
+@keyframes s{50%{transform:translateY(6px);opacity:.6}}
+@media (prefers-reduced-motion:reduce){.reel.spin{animation:none;opacity:.5}}
+#msg{min-height:1.6em;text-align:center;font-weight:700;margin:0 0 10px}
+.win{color:var(--win)}.lose{color:var(--lose)}
+.ctrl{display:flex;gap:8px;margin-bottom:18px}
+.bet{display:flex;gap:6px}
+.bet button{padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.bet button.on{background:var(--ink);color:var(--bg)}
+#go{flex:1;padding:14px;border:0;border-radius:12px;background:var(--acc);color:#fff;font:inherit;font-weight:700;font-size:1.1rem;cursor:pointer}
+#go:disabled{opacity:.5}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.stats{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:.92rem}
+.stats div{display:flex;justify-content:space-between;padding:4px 0}
+.stats h2{font-size:1rem;margin:0 0 6px}
+.note{color:var(--mute);font-size:.82rem;margin-top:10px;line-height:1.4}
+#reset{margin-top:12px;background:none;border:0;color:var(--mute);text-decoration:underline;font:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+<h1>Спины на шару</h1>
+<p class="sub">Монеты ненастоящие, проигрыш ничего не стоит.</p>
+<div class="bal"><span>Баланс</span><b id="bal">1000</b></div>
+<div class="reels"><div class="reel" id="r0">🍒</div><div class="reel" id="r1">🍋</div><div class="reel" id="r2">🔔</div></div>
+<p id="msg">Жми «Крутить»</p>
+<div class="ctrl">
+<div class="bet" id="bet"><button data-b="10" class="on">10</button><button data-b="50">50</button><button data-b="100">100</button></div>
+<button id="go">Крутить</button>
+</div>
+<div class="stats">
+<h2>Твоя статистика</h2>
+<div><span>Спинов</span><b id="n">0</b></div>
+<div><span>Поставлено всего</span><b id="w">0</b></div>
+<div><span>Выиграно всего</span><b id="p">0</b></div>
+<div><span>Итог</span><b id="net">0</b></div>
+<div><span>Возврат (RTP)</span><b id="rtp">—</b></div>
+<p class="note">В настоящих казино RTP обычно ниже 100%: чем дольше играешь, тем ближе итог к минусу. Здесь шансы такие же — посмотри, куда уедет твой график.</p>
+</div>
+<button id="reset">Начать заново</button>
+</main>
+<script>
+const SYM=["🍒","🍋","🔔","🍀","💎","7️⃣"];
+// веса: чаще выпадают дешёвые символы
+const W=[30,25,20,12,8,5], TOT=W.reduce((a,b)=>a+b,0);
+const PAY3={"🍒":5,"🍋":8,"🔔":15,"🍀":30,"💎":60,"7️⃣":150};
+let S={bal:1000,bet:10,n:0,wag:0,won:0};
+try{const x=JSON.parse(localStorage.getItem("slots")||"null");if(x&&typeof x.bal==="number")S=x}catch(e){}
+const $=id=>document.getElementById(id);
+function pick(){let r=Math.random()*TOT;for(let i=0;i<W.length;i++){if((r-=W[i])<0)return SYM[i]}return SYM[0]}
+function save(){try{localStorage.setItem("slots",JSON.stringify(S))}catch(e){}}
+function draw(){
+ $("bal").textContent=S.bal;$("n").textContent=S.n;$("w").textContent=S.wag;$("p").textContent=S.won;
+ const net=S.won-S.wag;$("net").textContent=(net>0?"+":"")+net;$("net").className=net>=0?"win":"lose";
+ $("rtp").textContent=S.wag?Math.round(S.won/S.wag*100)+"%":"—";
+ document.querySelectorAll("#bet button").forEach(b=>b.classList.toggle("on",+b.dataset.b===S.bet));
+ $("go").disabled=S.bal<S.bet;
+ if(S.bal<S.bet)setMsg("Монеты кончились. Нажми «Начать заново».","lose");
+}
+function setMsg(t,c){$("msg").textContent=t;$("msg").className=c||""}
+function result(a){
+ if(a[0]===a[1]&&a[1]===a[2])return PAY3[a[0]]*S.bet/ (1);
+ if(a[0]===a[1]||a[1]===a[2]||a[0]===a[2])return S.bet; // пара: ставка назад
+ return 0;
+}
+$("bet").onclick=e=>{const b=e.target.dataset.b;if(b){S.bet=+b;draw()}};
+$("go").onclick=()=>{
+ if(S.bal<S.bet)return;
+ $("go").disabled=true;S.bal-=S.bet;S.wag+=S.bet;S.n++;
+ $("bal").textContent=S.bal;setMsg("");
+ const rs=[0,1,2].map(i=>$("r"+i));rs.forEach(r=>r.classList.add("spin"));
+ const out=[pick(),pick(),pick()];
+ const t=setInterval(()=>rs.forEach(r=>{if(r.classList.contains("spin"))r.textContent=SYM[Math.floor(Math.random()*SYM.length)]}),80);
+ rs.forEach((r,i)=>setTimeout(()=>{r.classList.remove("spin");r.textContent=out[i];
+  if(i===2){clearInterval(t);
+   const pay=result(out);S.bal+=pay;S.won+=pay;
+   if(pay>S.bet)setMsg("Выигрыш "+pay+"!","win");
+   else if(pay===S.bet)setMsg("Пара: ставка вернулась","");
+   else setMsg("Мимо. −"+S.bet,"lose");
+   save();draw();}
+ },500+i*350));
+};
+$("reset").onclick=()=>{S={bal:1000,bet:10,n:0,wag:0,won:0};save();setMsg("Жми «Крутить»");["🍒","🍋","🔔"].forEach((s,i)=>$("r"+i).textContent=s);draw()};
+draw();
+</script>
+</body>
+</html>
